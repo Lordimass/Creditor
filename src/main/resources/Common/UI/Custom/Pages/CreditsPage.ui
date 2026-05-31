@@ -8,7 +8,7 @@ $C.@Container {
   #Title {
     Group {
       $C.@Title {
-        @Text = %server.customUI.pluginListPage.plugins;
+        @Text = "Server Plugins";
       }
     }
   }
@@ -51,6 +51,41 @@ $C.@Container {
 
         Label #PluginDescription {
           Anchor: (Bottom: 10);
+          Style: (Wrap: true);
+        }
+
+        Group #Authors {
+          Anchor: (Bottom: 10);
+          Group #AuthorsHeader {
+            Anchor: (Left: 0, Width: 200);
+            Label #Name {
+              Anchor: (Left: 0, Width: 200);
+              Style: LabelStyle(RenderBold: true);
+              Padding: (Full: 5);
+              Text: "Name";
+              OutlineSize: 1.5;
+              OutlineColor: #473e26;
+              Background: #212121;
+            }
+            Label #Email {
+              Anchor: (Left: 200, Width: 200);
+              Style: LabelStyle(RenderBold: true);
+              Padding: (Full: 5);
+              Text: "Email";
+              OutlineSize: 1.5;
+              OutlineColor: #473e26;
+              Background: #212121;
+            }
+            Label #Url {
+              Anchor: (Left: 400, Width: 200);
+              Style: LabelStyle(RenderBold: true);
+              Padding: (Full: 5);
+              Text: "Url";
+              OutlineSize: 1.5;
+              OutlineColor: #473e26;
+              Background: #212121;
+            }
+          }
         }
       }
     }
@@ -58,11 +93,6 @@ $C.@Container {
     Group #SearchOptions {
       Anchor: (Top: 10);
       LayoutMode: Right;
-
-      $C.@CheckBoxWithLabel #DescriptiveOnlyOption {
-          @Text =  %server.customUI.pluginListPage.descriptiveOnly;
-          @Checked = true;
-      }
     }
   }
 }

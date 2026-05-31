@@ -21,6 +21,7 @@ import it.unimi.dsi.fastutil.objects.ObjectList;
 
 import java.lang.reflect.Field;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -51,14 +52,9 @@ public class CreditsPage extends PluginListPage {
         this.playerSessionSettings = store.ensureAndGetComponent(ref, PluginListPageManager.SessionSettings.getComponentType());
         commandBuilder.append("Pages/CreditsPage.ui");
         this.buildPluginList(commandBuilder, eventBuilder);
-        eventBuilder.addEventBinding(
-            CustomUIEventBindingType.ValueChanged, "#DescriptiveOnlyOption #CheckBox", new EventData().append("Option", "DescriptiveOnly")
-        );
         if (!this.visiblePlugins.isEmpty()) {
             this.selectPlugin(this.visiblePlugins.getFirst().identifier.toString(), commandBuilder);
         }
-
-        commandBuilder.set("#DescriptiveOnlyOption #CheckBox.Value", this.playerSessionSettings.descriptiveOnly);
     }
 
     public void handleDataEvent(@Nonnull Ref<EntityStore> ref, @Nonnull Store<EntityStore> store, @Nonnull PluginListPage.PluginListPageEventData data) {
@@ -68,14 +64,11 @@ public class CreditsPage extends PluginListPage {
         UIEventBuilder eventBuilder = new UIEventBuilder();
 
         // Fields are private in base PluginListPage Hytale class, use reflection to access them here.
-        String plugin, option;
+        String plugin;
         try {
             Field dataPlugin = PluginListPageEventData.class.getDeclaredField("plugin");
             dataPlugin.setAccessible(true);
             plugin = (String) dataPlugin.get(data);
-            Field dataOption = PluginListPageEventData.class.getDeclaredField("option");
-            dataOption.setAccessible(true);
-            option = (String) dataOption.get(data);
         } catch (NoSuchFieldException | IllegalAccessException e) {
             LOGGER.atSevere().log("Could not access field when handling CreditsPage data event:", e);
             return;
@@ -84,15 +77,6 @@ public class CreditsPage extends PluginListPage {
         if (plugin != null) {
             this.selectPlugin(plugin, commandBuilder);
             this.sendUpdate(commandBuilder, null, false);
-        } else if (option != null) {
-            if (option.hashCode() == 180783736 && option.equals("DescriptiveOnly")) {
-                this.playerSessionSettings.descriptiveOnly = !this.playerSessionSettings.descriptiveOnly;
-                this.buildPluginList(commandBuilder, eventBuilder);
-                if (!this.visiblePlugins.isEmpty()) {
-                    this.selectPlugin(this.visiblePlugins.getFirst().identifier.toString(), commandBuilder);
-                }
-            }
-            this.sendUpdate(commandBuilder, eventBuilder, false);
         }
     }
 
@@ -109,9 +93,13 @@ public class CreditsPage extends PluginListPage {
         this.availablePlugins.clear();
         PluginManager module = PluginManager.get();
         Map<PluginIdentifier, PluginManifest> loadedPlugins = module.getAvailablePlugins();
-        loadedPlugins.forEach((id, manifest) -> this.availablePlugins.add(new CreditsPage.PluginDetails(manifest, id)));
-        int i = 0;
+        loadedPlugins.forEach((id, manifest) -> {
+            // Don't include base game plugins. This is for installed mods.
+            if (manifest.getGroup().equals("Hytale")) return;
+            this.availablePlugins.add(new CreditsPage.PluginDetails(manifest, id));
+        });
 
+        int i = 0;
         for (int bound = this.availablePlugins.size(); i < bound; i++) {
             CreditsPage.PluginDetails plugin = this.availablePlugins.get(i);
             String desc = plugin.manifest.getDescription();
@@ -121,7 +109,6 @@ public class CreditsPage extends PluginListPage {
         }
 
         i = 0;
-
         for (int bound = this.visiblePlugins.size(); i < bound; i++) {
             PluginDetails pluginDetails = this.visiblePlugins.get(i);
             PluginIdentifier identifier = pluginDetails.identifier;
@@ -157,17 +144,53 @@ public class CreditsPage extends PluginListPage {
 
             commandBuilder.set("#PluginList[" + this.visiblePlugins.indexOf(nextSelectedPlugin) + "] #Button.Style", BUTTON_LABEL_STYLE_SELECTED);
             commandBuilder.set("#PluginName.Text", nextSelectedPlugin.manifest.getName());
-            if (nextSelectedPlugin.manifest.getVersion() != null) {
-                commandBuilder.set("#PluginVersion.Text", nextSelectedPlugin.manifest.getVersion().toString());
-            } else {
-                commandBuilder.set("#PluginVersion.Text", "");
-            }
+
+            String versionAndUrl = (nextSelectedPlugin.manifest.getVersion() != null ? nextSelectedPlugin.manifest.getVersion().toString() : "")
+                + (nextSelectedPlugin.manifest.getWebsite() != null ? " • " + nextSelectedPlugin.manifest.getWebsite() : "");
+            commandBuilder.set("#PluginVersion.Text", versionAndUrl);
 
             if (nextSelectedPlugin.manifest.getDescription() != null) {
                 commandBuilder.set("#PluginDescription.Text", nextSelectedPlugin.manifest.getDescription());
             } else {
                 commandBuilder.set("#PluginDescription.Text", "");
             }
+
+            AtomicInteger i = new AtomicInteger();
+            nextSelectedPlugin.manifest.getAuthors().forEach((author) -> {
+                int top = 30*(i.get() + 1);
+                String name = author.getName() != null ? author.getName() : "";
+                String email = author.getEmail() != null ? author.getEmail() : "";
+                String url = author.getUrl() != null ? author.getUrl() : "";
+                commandBuilder.appendInline("#Authors",
+                    "          Group #Author"+i+" {" +
+                        "            Anchor: (Left: 0, Width: 200);" +
+                        "            Label #Name {" +
+                        "              Anchor: (Left: 0, Width: 200, Top: "+top+");" +
+                        "              Padding: (Full: 5);" +
+                        "              Text: \""+name+"\";" +
+                        "              OutlineSize: 1.5;" +
+                        "              OutlineColor: #473e26;" +
+                        "              Background: #1b263a;" +
+                        "            }" +
+                        "            Label #Email {" +
+                        "              Anchor: (Left: 200, Width: 200, Top: "+top+");" +
+                        "              Padding: (Full: 5);" +
+                        "              Text: \""+email+"\";" +
+                        "              OutlineSize: 1.5;" +
+                        "              OutlineColor: #473e26;" +
+                        "              Background: #1b263a;" +
+                        "            }" +
+                        "            Label #Url {" +
+                        "              Anchor: (Left: 400, Width: 200, Top: "+top+");" +
+                        "              Padding: (Full: 5);" +
+                        "              Text: \""+url+"\";" +
+                        "              OutlineSize: 1.5;" +
+                        "              OutlineColor: #473e26;" +
+                        "              Background: #1b263a;" +
+                        "            }" +
+                        "          }");
+                i.getAndIncrement();
+            });
 
             this.selectedPlugin = nextSelectedPlugin;
         }
