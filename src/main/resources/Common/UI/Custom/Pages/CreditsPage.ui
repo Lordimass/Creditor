@@ -54,6 +54,14 @@ $C.@Container {
           Style: (Wrap: true);
         }
 
+        Label #PluginLicense {
+          Anchor: (Bottom: 10);
+          Style: (
+            Wrap: true,
+            TextColor: #c9c9c9
+          );
+        }
+
         Group #Authors {
           Anchor: (Bottom: 10);
           Group #AuthorsHeader {
