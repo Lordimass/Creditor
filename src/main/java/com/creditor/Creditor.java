@@ -1,5 +1,6 @@
 package com.creditor;
 
+import com.creditor.asset.CreditAsset;
 import com.creditor.command.CreditsCommand;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 
@@ -14,6 +15,7 @@ public class Creditor {
     public static void setup(JavaPlugin host) {
         if (isSetupDone) return;
 
+        host.getAssetRegistry().register(CreditAsset.createAssetStore());
         host.getCommandRegistry().registerCommand(new CreditsCommand());
 
         isSetupDone = true;

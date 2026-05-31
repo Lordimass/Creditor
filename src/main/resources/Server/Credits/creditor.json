@@ -1,0 +1,11 @@
+{
+  "Plugin": "com.creditor:Creditor",
+  "Description": {
+    "MessageId": "credits.com.creditor.description",
+    "RawText": "Creditor adds a /credits page for installed Hytale plugins, letting mod authors provide richer attribution than the manifest description alone."
+  },
+  "License": {
+    "MessageId": "credits.com.creditor.license",
+    "RawText": "Creditor is licensed under GPL-3.0-only."
+  }
+}

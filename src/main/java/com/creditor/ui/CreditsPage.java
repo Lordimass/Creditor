@@ -1,5 +1,7 @@
 package com.creditor.ui;
 
+import com.creditor.asset.CreditAsset;
+import com.creditor.asset.CreditDisplayDetails;
 import com.hypixel.hytale.common.plugin.PluginIdentifier;
 import com.hypixel.hytale.common.plugin.PluginManifest;
 import com.hypixel.hytale.component.Ref;
@@ -102,8 +104,8 @@ public class CreditsPage extends PluginListPage {
         int i = 0;
         for (int bound = this.availablePlugins.size(); i < bound; i++) {
             CreditsPage.PluginDetails plugin = this.availablePlugins.get(i);
-            String desc = plugin.manifest.getDescription();
-            if (!this.playerSessionSettings.descriptiveOnly || desc != null && !desc.isEmpty()) {
+            CreditDisplayDetails details = CreditDisplayDetails.from(plugin.manifest, CreditAsset.findByPlugin(plugin.identifier.toString()));
+            if (!this.playerSessionSettings.descriptiveOnly || details.hasDescription()) {
                 this.visiblePlugins.add(plugin);
             }
         }
@@ -143,17 +145,14 @@ public class CreditsPage extends PluginListPage {
             }
 
             commandBuilder.set("#PluginList[" + this.visiblePlugins.indexOf(nextSelectedPlugin) + "] #Button.Style", BUTTON_LABEL_STYLE_SELECTED);
+            CreditDisplayDetails details = CreditDisplayDetails.from(
+                nextSelectedPlugin.manifest, CreditAsset.findByPlugin(nextSelectedPlugin.identifier.toString())
+            );
             commandBuilder.set("#PluginName.Text", nextSelectedPlugin.manifest.getName());
 
-            String versionAndUrl = (nextSelectedPlugin.manifest.getVersion() != null ? nextSelectedPlugin.manifest.getVersion().toString() : "")
-                + (nextSelectedPlugin.manifest.getWebsite() != null ? " • " + nextSelectedPlugin.manifest.getWebsite() : "");
-            commandBuilder.set("#PluginVersion.Text", versionAndUrl);
-
-            if (nextSelectedPlugin.manifest.getDescription() != null) {
-                commandBuilder.set("#PluginDescription.Text", nextSelectedPlugin.manifest.getDescription());
-            } else {
-                commandBuilder.set("#PluginDescription.Text", "");
-            }
+            commandBuilder.set("#PluginVersion.Text", details.versionAndUrl());
+            commandBuilder.set("#PluginDescription.Text", details.descriptionText());
+            commandBuilder.set("#PluginLicense.Text", details.licenseText());
 
             AtomicInteger i = new AtomicInteger();
             nextSelectedPlugin.manifest.getAuthors().forEach((author) -> {
