@@ -1,31 +1,29 @@
 package com.creditor;
 
-import com.hypixel.hytale.logger.HytaleLogger;
+import com.creditor.command.CreditsCommand;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
-import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
 
-import java.util.logging.Level;
+public class Creditor {
 
-public class Creditor extends JavaPlugin {
+    private Creditor() {}
 
-    public static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
+    // Used to prevent mod from being initialised multiple times if more than one mod is installed which uses Creditor as a library.
+    private static boolean isSetupDone = false;
+    private static boolean isStartDone = false;
 
-    public Creditor(JavaPluginInit init) {
-        super(init);
+    public static void setup(JavaPlugin host) {
+        if (isSetupDone) return;
+
+        host.getCommandRegistry().registerCommand(new CreditsCommand());
+
+        isSetupDone = true;
     }
 
-    @Override
-    protected void start() {
-        LOGGER.at(Level.INFO).log("Starting Creditor!");
-    }
+    public static void start(JavaPlugin host) {
+        if (isStartDone) return;
 
-    @Override
-    protected void setup() {
-        LOGGER.at(Level.INFO).log("Setting up Creditor!");
-    }
 
-    @Override
-    protected void shutdown() {
-        LOGGER.at(Level.INFO).log("Shutting down Creditor!");
+
+        isStartDone = true;
     }
 }

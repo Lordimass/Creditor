@@ -13,7 +13,9 @@
     "Dependencies": {
         "Hytale:AssetModule": "*"
     },
-    "OptionalDependencies": {},
+    "OptionalDependencies": {
+        
+    },
     "DisabledByDefault": false,
     "Main": "com.creditor.Main",
     "IncludesAssetPack": true,

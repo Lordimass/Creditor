@@ -16,6 +16,18 @@ java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(property("java_version").toString().toInt()))
 }
 
+val lombokVersion = "1.18.40"
+dependencies {
+    compileOnly("org.jetbrains:annotations:26.1.0")
+    compileOnly("org.jspecify:jspecify:1.0.0")
+
+    // Lombok
+    compileOnly("org.projectlombok:lombok:$lombokVersion")
+    annotationProcessor("org.projectlombok:lombok:$lombokVersion")
+    testCompileOnly("org.projectlombok:lombok:$lombokVersion")
+    testAnnotationProcessor("org.projectlombok:lombok:$lombokVersion")
+}
+
 hytaleTools {
     javaVersion = property("java_version").toString().toInt()
     hytaleVersion = property("hytale_version").toString()
