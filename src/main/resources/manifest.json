@@ -1,7 +1,7 @@
 {
     "Group": "com.creditor",
     "Name": "Creditor",
-    "Version": "0.0.1",
+    "Version": "1.0.0",
     "Description": "A Hytale Plugin and Java Library to credit mod creators and provide information on the mods which are installed.",
     "Authors": [
         {

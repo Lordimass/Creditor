@@ -1,5 +1,16 @@
 # Creditor
-A Hytale Plugin and Java Library to credit mod creators and provide information on the mods which are installed.
+Creditor was designed and created by Hytale Workshop following a conversation regarding the problem of server owners 
+unintentionally (or in rare cases, intentionally) not crediting the creators of the mods which they use on their 
+server. Creditor adds a new `/credits` command which shows a list of installed mods and their creators, as well as 
+other metadata from the manifest.
+
+The mod can be included as a Java library in your own mod (process described below) or it can be installed independently
+by a good faith server owner. When installed independently, the credits menu adds a checkmark badge in the upper right 
+which tells players that the server owner is actively choosing to support modders. If the symbol is missing, the mod 
+was installed transitively as a Java library in some other installed mod, and the server owner has not chosen to credit 
+creators. 
+
+**This works best for the community if as many people as possible package this with their mod!**
 
 ## Installation
 **Creditor can be installed as a mod on the server by putting the JAR file in the mods folder as normal**, but it can also
