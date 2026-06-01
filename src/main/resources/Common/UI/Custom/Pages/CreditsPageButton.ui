@@ -1,18 +1,22 @@
 $C = "../Common.ui";
 
 @LabelStyle = (
+  Default: (
+    Background: #000000(0.2)
+  ),
   Hovered: (
-    Background: #000000(0.2),
+    Background: #000000(0.4),
   )
 );
 
 @SelectedLabelStyle = (
   Default: (
-    LabelStyle: (RenderBold: true)
+    LabelStyle: (RenderBold: true),
+    Background: #000000(0.3)
   ),
   Hovered: (
     LabelStyle: (RenderBold: true),
-    Background: #000000(0.2)
+    Background: #000000(0.4)
   )
 );
 
@@ -21,7 +25,8 @@ Group {
   LayoutMode: Left;
 
   TextButton #Button {
-    Padding: (Full: 6);
+    Padding: (Full: 3);
+    Anchor: (Bottom: 2);
     Style: @LabelStyle;
     FlexWeight: 1;
   }

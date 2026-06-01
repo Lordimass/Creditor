@@ -138,8 +138,9 @@ public class CreditsPage extends PluginListPage {
 
             commandBuilder.set("#PluginVersion.Text", details.versionAndUrl());
             commandBuilder.set("#PluginDescription.Text", details.descriptionText());
-            commandBuilder.set("#PluginLicense.Visible", !details.licenseText().isEmpty());
-            commandBuilder.set("#PluginLicense.Text", details.licenseText());
+            String licenseText = details.licenseText();
+            commandBuilder.set("#PluginLicense.Visible", !licenseText.isEmpty());
+            commandBuilder.set("#PluginLicense.Text", licenseText);
             buildAuthorTable(commandBuilder, nextSelectedPlugin);
 
             this.selectedPlugin = nextSelectedPlugin;

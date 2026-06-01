@@ -80,10 +80,6 @@ public record CreditDisplayDetails(
 
     @Nonnull
     private static String toDisplayText(@Nonnull Message message) {
-        if (message.getRawText() != null && !message.getRawText().isEmpty()) {
-            return message.getRawText();
-        }
-
         String messageId = message.getMessageId();
         if (messageId != null && !messageId.isEmpty()) {
             I18nModule i18nModule = I18nModule.get();
@@ -93,7 +89,10 @@ public record CreditDisplayDetails(
                     return translated;
                 }
             }
-            return messageId;
+        }
+
+        if (message.getRawText() != null && !message.getRawText().isEmpty()) {
+            return message.getRawText();
         }
 
         return "";

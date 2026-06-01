@@ -29,11 +29,11 @@ Example: `Server/Credits/my_mod.json`
 {
   "Plugin": "com.example:MyMod",
   "Description": {
-    "MessageId": "credits.com.example.my_mod.description",
+    "MessageId": "myMod.myMod.description",
     "RawText": "My Mod adds useful server features and includes custom credit metadata."
   },
   "License": {
-    "MessageId": "credits.com.example.my_mod.license",
+    "MessageId": "myMod.myMod.license",
     "RawText": "My Mod is licensed under MIT."
   }
 }
