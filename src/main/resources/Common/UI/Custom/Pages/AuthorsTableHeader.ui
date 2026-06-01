@@ -1,0 +1,31 @@
+Group #AuthorsHeader {
+    LayoutMode: Left;
+    Anchor: (Left: 5, Width: 600);
+    Label #Name {
+      Anchor: (Width: 200);
+      Style: LabelStyle(RenderBold: true);
+      Padding: (Full: 5);
+      Text: "Name";
+      OutlineSize: 1.5;
+      OutlineColor: #473e26;
+      Background: #212121;
+    }
+    Label #Email {
+      Anchor: (Width: 200);
+      Style: LabelStyle(RenderBold: true);
+      Padding: (Full: 5);
+      Text: "Email";
+      OutlineSize: 1.5;
+      OutlineColor: #473e26;
+      Background: #212121;
+    }
+    Label #Url {
+      Anchor: (Width: 200);
+      Style: LabelStyle(RenderBold: true);
+      Padding: (Full: 5);
+      Text: "Url";
+      OutlineSize: 1.5;
+      OutlineColor: #473e26;
+      Background: #212121;
+    }
+}

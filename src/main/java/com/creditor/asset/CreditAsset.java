@@ -9,6 +9,8 @@ import com.hypixel.hytale.codec.Codec;
 import com.hypixel.hytale.codec.KeyedCodec;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.asset.HytaleAssetStore;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -46,28 +48,24 @@ public class CreditAsset implements JsonAssetWithMap<String, DefaultAssetMap<Str
 
     @Nullable
     private static AssetStore<String, CreditAsset, DefaultAssetMap<String, CreditAsset>> assetStore;
-    @Nullable
+    @Nullable @Getter @Setter
     private AssetExtraInfo.Data data;
-    @Nullable
+    @Nullable @Getter @Setter
     private String id;
-    @Nullable
+    @Nullable @Getter @Setter
     private String plugin;
-    @Nullable
+    @Nullable @Getter @Setter
     private Message name;
-    @Nullable
+    @Nullable @Getter @Setter
     private String version;
-    @Nullable
+    @Nullable @Getter @Setter
     private String website;
-    @Nullable
+    @Nullable @Getter @Setter
     private Message description;
-    @Nullable
+    @Nullable @Getter @Setter
     private Message license;
 
     public CreditAsset() {}
-
-    public CreditAsset(@Nonnull String id) {
-        this.id = id;
-    }
 
     @Nonnull
     public static HytaleAssetStore<String, CreditAsset, DefaultAssetMap<String, CreditAsset>> createAssetStore() {
@@ -103,78 +101,5 @@ public class CreditAsset implements JsonAssetWithMap<String, DefaultAssetMap<Str
             assetStore = com.hypixel.hytale.assetstore.AssetRegistry.getAssetStore(CreditAsset.class);
         }
         return assetStore;
-    }
-
-    @Override
-    @Nullable
-    public String getId() {
-        return this.id;
-    }
-
-    public void setId(@Nullable String id) {
-        this.id = id;
-    }
-
-    @Nullable
-    public String getPlugin() {
-        return this.plugin;
-    }
-
-    public void setPlugin(@Nullable String plugin) {
-        this.plugin = plugin;
-    }
-
-    @Nullable
-    public AssetExtraInfo.Data getData() {
-        return this.data;
-    }
-
-    public void setData(@Nullable AssetExtraInfo.Data data) {
-        this.data = data;
-    }
-
-    @Nullable
-    public Message getName() {
-        return this.name;
-    }
-
-    public void setName(@Nullable Message name) {
-        this.name = name;
-    }
-
-    @Nullable
-    public String getVersion() {
-        return this.version;
-    }
-
-    public void setVersion(@Nullable String version) {
-        this.version = version;
-    }
-
-    @Nullable
-    public String getWebsite() {
-        return this.website;
-    }
-
-    public void setWebsite(@Nullable String website) {
-        this.website = website;
-    }
-
-    @Nullable
-    public Message getDescription() {
-        return this.description;
-    }
-
-    public void setDescription(@Nullable Message description) {
-        this.description = description;
-    }
-
-    @Nullable
-    public Message getLicense() {
-        return this.license;
-    }
-
-    public void setLicense(@Nullable Message license) {
-        this.license = license;
     }
 }

@@ -1,0 +1,27 @@
+Group {
+    Anchor: (Left: 5, Width: 600);
+    FlexWeight: 1;
+    LayoutMode: Left;
+
+    Label #Name {
+      Anchor: (Width: 200);
+      Padding: (Full: 5);
+      OutlineSize: 1.5;
+      OutlineColor: #473e26;
+      Background: #1b263a;
+    }
+    Label #Email {
+      Anchor: (Width: 200);
+      Padding: (Full: 5);
+      OutlineSize: 1.5;
+      OutlineColor: #473e26;
+      Background: #1b263a;
+    }
+    Label #Url {
+      Anchor: (Width: 200);
+      Padding: (Full: 5);
+      OutlineSize: 1.5;
+      OutlineColor: #473e26;
+      Background: #1b263a;
+    }
+}

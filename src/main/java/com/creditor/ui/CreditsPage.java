@@ -61,9 +61,7 @@ public class CreditsPage extends PluginListPage {
 
     public void handleDataEvent(@Nonnull Ref<EntityStore> ref, @Nonnull Store<EntityStore> store, @Nonnull PluginListPage.PluginListPageEventData data) {
         assert this.playerSessionSettings != null;
-
         UICommandBuilder commandBuilder = new UICommandBuilder();
-        UIEventBuilder eventBuilder = new UIEventBuilder();
 
         // Fields are private in base PluginListPage Hytale class, use reflection to access them here.
         String plugin;
@@ -82,11 +80,6 @@ public class CreditsPage extends PluginListPage {
         }
     }
 
-    @Override
-    public void onDismiss(@Nonnull Ref<EntityStore> ref, @Nonnull Store<EntityStore> store) {
-        PluginListPageManager.get().deregisterPluginListPage(this);
-    }
-
     private void buildPluginList(@Nonnull UICommandBuilder commandBuilder, @Nonnull UIEventBuilder eventBuilder) {
         assert this.playerSessionSettings != null;
 
@@ -102,30 +95,22 @@ public class CreditsPage extends PluginListPage {
         });
 
         int i = 0;
+        int count = 0;
         for (int bound = this.availablePlugins.size(); i < bound; i++) {
-            CreditsPage.PluginDetails plugin = this.availablePlugins.get(i);
-            CreditDisplayDetails details = CreditDisplayDetails.from(plugin.manifest, CreditAsset.findByPlugin(plugin.identifier.toString()));
-            if (!this.playerSessionSettings.descriptiveOnly || details.hasDescription()) {
-                this.visiblePlugins.add(plugin);
-            }
-        }
-
-        i = 0;
-        for (int bound = this.visiblePlugins.size(); i < bound; i++) {
-            PluginDetails pluginDetails = this.visiblePlugins.get(i);
+            PluginDetails pluginDetails = this.availablePlugins.get(i);
             PluginIdentifier identifier = pluginDetails.identifier;
             String id = identifier.toString();
             PluginBase loadedPlugin = module.getPlugin(identifier);
-            if (loadedPlugin == null || !loadedPlugin.isEnabled()) {
-                continue;
-            }
 
-            String selector = "#PluginList[" + i + "]";
+            if (loadedPlugin == null || loadedPlugin.isDisabled()) continue;
+            visiblePlugins.add(pluginDetails);
+            String selector = "#PluginList[" + count + "]";
             commandBuilder.append("#PluginList", "Pages/CreditsPageButton.ui");
             commandBuilder.set(selector + " #Button.Text", pluginDetails.manifest.getName());
             eventBuilder.addEventBinding(
                 CustomUIEventBindingType.Activating, selector + " #Button", new EventData().append("Plugin", id).append("Type", "Select"), false
             );
+            count++;
         }
     }
 
@@ -148,54 +133,56 @@ public class CreditsPage extends PluginListPage {
             CreditDisplayDetails details = CreditDisplayDetails.from(
                 nextSelectedPlugin.manifest, CreditAsset.findByPlugin(nextSelectedPlugin.identifier.toString())
             );
+
             commandBuilder.set("#PluginName.Text", nextSelectedPlugin.manifest.getName());
 
             commandBuilder.set("#PluginVersion.Text", details.versionAndUrl());
             commandBuilder.set("#PluginDescription.Text", details.descriptionText());
+            commandBuilder.set("#PluginLicense.Visible", !details.licenseText().isEmpty());
             commandBuilder.set("#PluginLicense.Text", details.licenseText());
-
-            AtomicInteger i = new AtomicInteger();
-            nextSelectedPlugin.manifest.getAuthors().forEach((author) -> {
-                int top = 30*(i.get() + 1);
-                String name = author.getName() != null ? author.getName() : "";
-                String email = author.getEmail() != null ? author.getEmail() : "";
-                String url = author.getUrl() != null ? author.getUrl() : "";
-                commandBuilder.appendInline("#Authors",
-                    "          Group #Author"+i+" {" +
-                        "            Anchor: (Left: 0, Width: 200);" +
-                        "            Label #Name {" +
-                        "              Anchor: (Left: 0, Width: 200, Top: "+top+");" +
-                        "              Padding: (Full: 5);" +
-                        "              Text: \""+name+"\";" +
-                        "              OutlineSize: 1.5;" +
-                        "              OutlineColor: #473e26;" +
-                        "              Background: #1b263a;" +
-                        "            }" +
-                        "            Label #Email {" +
-                        "              Anchor: (Left: 200, Width: 200, Top: "+top+");" +
-                        "              Padding: (Full: 5);" +
-                        "              Text: \""+email+"\";" +
-                        "              OutlineSize: 1.5;" +
-                        "              OutlineColor: #473e26;" +
-                        "              Background: #1b263a;" +
-                        "            }" +
-                        "            Label #Url {" +
-                        "              Anchor: (Left: 400, Width: 200, Top: "+top+");" +
-                        "              Padding: (Full: 5);" +
-                        "              Text: \""+url+"\";" +
-                        "              OutlineSize: 1.5;" +
-                        "              OutlineColor: #473e26;" +
-                        "              Background: #1b263a;" +
-                        "            }" +
-                        "          }");
-                i.getAndIncrement();
-            });
+            buildAuthorTable(commandBuilder, nextSelectedPlugin);
 
             this.selectedPlugin = nextSelectedPlugin;
         }
     }
 
-    public void handlePluginChangeEvent(@Nonnull PluginIdentifier plugin, boolean activeState) {}
+    private void buildAuthorTable(@Nonnull UICommandBuilder commandBuilder, PluginDetails nextSelectedPlugin) {
+        commandBuilder.clear("#Authors");
+        if (!nextSelectedPlugin.manifest.getAuthors().isEmpty()) {
+            commandBuilder.append("#Authors", "Pages/AuthorsTableHeader.ui");
+        }
+        AtomicInteger i = new AtomicInteger(1);
+        nextSelectedPlugin.manifest.getAuthors().forEach((author) -> {
+            String name = author.getName() != null ? author.getName() : "";
+            String email = author.getEmail() != null ? author.getEmail() : "";
+            String url = author.getUrl() != null ? author.getUrl() : "";
+            String selector = "#Authors["+i+"]";
+            commandBuilder.append("#Authors", "Pages/AuthorsTableRow.ui");
+            commandBuilder.set(selector + " #Name.Text", name);
+            commandBuilder.set(selector + " #Email.Text", email);
+            commandBuilder.set(selector + " #Url.Text", url);
+            i.getAndIncrement();
+        });
+    }
+
+    public void handlePluginChangeEvent(@Nonnull PluginIdentifier plugin, boolean activeState) {
+        UICommandBuilder commandBuilder = new UICommandBuilder();
+        UIEventBuilder eventBuilder = new UIEventBuilder();
+        CreditsPage.PluginDetails key = null;
+        int i = 0;
+
+        for (int bound = this.visiblePlugins.size(); i < bound; i++) {
+            CreditsPage.PluginDetails details = this.visiblePlugins.get(i);
+            if (details.identifier.equals(plugin)) {
+                key = details;
+                break;
+            }
+        }
+
+        if (key != null) {
+            this.sendUpdate(commandBuilder, eventBuilder, false);
+        }
+    }
 
     private record PluginDetails(@Nonnull PluginManifest manifest,
                                  @Nonnull PluginIdentifier identifier) {
