@@ -1,5 +1,6 @@
 package com.creditor.ui;
 
+import com.creditor.Main;
 import com.creditor.asset.CreditAsset;
 import com.creditor.asset.CreditDisplayDetails;
 import com.hypixel.hytale.common.plugin.PluginIdentifier;
@@ -57,6 +58,7 @@ public class CreditsPage extends PluginListPage {
         if (!this.visiblePlugins.isEmpty()) {
             this.selectPlugin(this.visiblePlugins.getFirst().identifier.toString(), commandBuilder);
         }
+        if (Main.isSupporter()) buildSupporterBadge(commandBuilder);
     }
 
     public void handleDataEvent(@Nonnull Ref<EntityStore> ref, @Nonnull Store<EntityStore> store, @Nonnull PluginListPage.PluginListPageEventData data) {
@@ -183,6 +185,24 @@ public class CreditsPage extends PluginListPage {
         if (key != null) {
             this.sendUpdate(commandBuilder, eventBuilder, false);
         }
+    }
+
+    private void buildSupporterBadge(@Nonnull UICommandBuilder commandBuilder) {
+        // Inlined to add a layer of difficulty for anyone trying to spoof this.
+        // If it were included as a .ui file it would be incredibly easy to just add the badge externally.
+        commandBuilder.appendInline("#Title", """
+                  AssetImage {
+                    AssetPath: "UI/Custom/Common/Checkmark.png";
+                    Anchor: (Top: 6, Right: 15, Width: 20, Height: 20);
+                    TooltipText: %creditor.credits.supporter.tooltip;
+                    TextTooltipStyle: (
+                      Background: (TexturePath: "Common/TooltipDefaultBackground.png", Border: 24),
+                      MaxWidth: 400,
+                      LabelStyle: (Wrap: true, FontSize: 16),
+                      Padding: 24
+                    );
+                  }
+            """);
     }
 
     private record PluginDetails(@Nonnull PluginManifest manifest,

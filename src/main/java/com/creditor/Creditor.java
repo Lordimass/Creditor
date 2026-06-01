@@ -3,6 +3,7 @@ package com.creditor;
 import com.creditor.asset.CreditAsset;
 import com.creditor.command.CreditsCommand;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
+import lombok.Getter;
 
 public class Creditor {
 
