@@ -19,6 +19,53 @@ dependencies {
 Creditor requires initialisation as a Hytale plugin, so in your `Main.start()` and `Main.setup()` methods, run 
 `Creditor.start()` & `Creditor.setup()` respectively.
 
+When you build your mod, make sure to use the shadow plugin to ensure the dependency is bundled with your mod
+```groovy
+plugins {
+    idea
+    java
+    ...
+    id("com.gradleup.shadow") version "8.3.6"
+}
+
+tasks {
+    shadowJar {
+        archiveClassifier.set("")
+        
+        manifest {
+            attributes(
+                    "Implementation-Title" to project.name,
+                    "Implementation-Version" to project.version,
+                    "Multi-Release" to "true"
+            )
+        }
+        
+        from("src/main/resources/hytale-assets") {
+            exclude("manifest.json")
+        }
+
+        // Remove the nested hytale-assets/ copy from the JAR (assets are at root now).
+        // The nested copy still exists in build/resources/main/ for deploy.sh compatibility.
+        exclude("hytale-assets/**")
+
+        // Exclude signature files (cause issues)
+        exclude("META-INF/*.SF")
+        exclude("META-INF/*.DSA")
+        exclude("META-INF/*.RSA")
+        exclude("META-INF/LICENSE*")
+        exclude("META-INF/NOTICE*")
+    }
+
+    build {
+        dependsOn(shadowJar)
+    }
+
+    jar {
+        enabled = false // Only use shadowJar
+    }
+}
+```
+
 ## Rich credit metadata
 Mods can include optional credit metadata in their asset pack under `Server/Credits`.
 The asset overrides manifest display fields on the `/credits` page while the manifest remains the fallback.
