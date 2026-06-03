@@ -1,3 +1,5 @@
+$C = "../Common.ui";
+
 Group {
     Anchor: (Left: 5, Width: 600);
     FlexWeight: 1;
@@ -9,6 +11,7 @@ Group {
       OutlineSize: 1.5;
       OutlineColor: #473e26;
       Background: #1b263a;
+      TextTooltipStyle: $C.@DefaultTextTooltipStyle;
     }
     Label #Email {
       Anchor: (Width: 200);
@@ -16,6 +19,7 @@ Group {
       OutlineSize: 1.5;
       OutlineColor: #473e26;
       Background: #1b263a;
+      TextTooltipStyle: $C.@DefaultTextTooltipStyle;
     }
     Label #Url {
       Anchor: (Width: 200);
@@ -23,5 +27,6 @@ Group {
       OutlineSize: 1.5;
       OutlineColor: #473e26;
       Background: #1b263a;
+      TextTooltipStyle: $C.@DefaultTextTooltipStyle;
     }
 }

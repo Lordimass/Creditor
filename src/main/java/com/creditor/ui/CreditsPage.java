@@ -3,12 +3,15 @@ package com.creditor.ui;
 import com.creditor.Main;
 import com.creditor.asset.CreditAsset;
 import com.creditor.asset.CreditDisplayDetails;
+import com.hypixel.hytale.assetstore.AssetPack;
+import com.hypixel.hytale.builtin.hytalegenerator.assets.AssetManager;
 import com.hypixel.hytale.common.plugin.PluginIdentifier;
 import com.hypixel.hytale.common.plugin.PluginManifest;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.protocol.packets.interface_.CustomUIEventBindingType;
+import com.hypixel.hytale.server.core.asset.AssetModule;
 import com.hypixel.hytale.server.core.plugin.PluginBase;
 import com.hypixel.hytale.server.core.plugin.PluginListPageManager;
 import com.hypixel.hytale.server.core.plugin.PluginManager;
@@ -23,6 +26,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 
 import java.lang.reflect.Field;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nonnull;
@@ -95,6 +99,11 @@ public class CreditsPage extends PluginListPage {
             if (manifest.getGroup().equals("Hytale")) return;
             this.availablePlugins.add(new CreditsPage.PluginDetails(manifest, id));
         });
+        AssetModule.get().getAssetPacks().forEach(assetPack -> {
+            PluginIdentifier identifier = new PluginIdentifier(assetPack.getManifest());
+            if (assetPack.isCoreMod() || loadedPlugins.containsKey(identifier)) return;
+            this.availablePlugins.add(new CreditsPage.PluginDetails(assetPack.getManifest(), identifier));
+        });
 
         int i = 0;
         int count = 0;
@@ -103,8 +112,8 @@ public class CreditsPage extends PluginListPage {
             PluginIdentifier identifier = pluginDetails.identifier;
             String id = identifier.toString();
             PluginBase loadedPlugin = module.getPlugin(identifier);
+            if (loadedPlugin != null && loadedPlugin.isDisabled()) continue;
 
-            if (loadedPlugin == null || loadedPlugin.isDisabled()) continue;
             visiblePlugins.add(pluginDetails);
             String selector = "#PluginList[" + count + "]";
             commandBuilder.append("#PluginList", "Pages/CreditsPageButton.ui");
@@ -156,14 +165,21 @@ public class CreditsPage extends PluginListPage {
         }
         AtomicInteger i = new AtomicInteger(1);
         nextSelectedPlugin.manifest.getAuthors().forEach((author) -> {
-            String name = author.getName() != null ? author.getName() : "";
-            String email = author.getEmail() != null ? author.getEmail() : "";
-            String url = author.getUrl() != null ? author.getUrl() : "";
             String selector = "#Authors["+i+"]";
             commandBuilder.append("#Authors", "Pages/AuthorsTableRow.ui");
-            commandBuilder.set(selector + " #Name.Text", name);
-            commandBuilder.set(selector + " #Email.Text", email);
-            commandBuilder.set(selector + " #Url.Text", url);
+            if (author.getName() != null) {
+                commandBuilder.set(selector + " #Name.Text", author.getName());
+                commandBuilder.set(selector + " #Name.TooltipText", author.getName());
+            }
+            if (author.getEmail() != null) {
+                commandBuilder.set(selector + " #Email.Text", author.getEmail());
+                commandBuilder.set(selector + " #Email.TooltipText", author.getEmail());
+            }
+            if (author.getUrl() != null) {
+                commandBuilder.set(selector + " #Url.Text", author.getUrl());
+                commandBuilder.set(selector + " #Url.TooltipText", author.getUrl());
+            }
+
             i.getAndIncrement();
         });
     }

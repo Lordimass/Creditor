@@ -17,6 +17,7 @@ import javax.annotation.Nonnull;
 public class CreditsCommand extends AbstractPlayerCommand {
     public CreditsCommand() {
         super("credits", "View full modlist and credits for modders.");
+        addAliases("credit", "mod", "mods", "modlist", "assetpacks");
     }
 
     @Override
