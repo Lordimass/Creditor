@@ -1,5 +1,5 @@
 credits.title = Mod Credits
 credits.supporter.tooltip = This server is supporting modders by choosing to install Creditor! If you find a server that has this menu but is missing this badge, it means they didn't choose to add Creditor to their server.
 
-creditor.description = Creditor adds a /credits! page for installed Hytale plugins, letting mod authors provide richer attribution than the manifest description alone.
+creditor.description = Creditor adds a /credits page for installed Hytale plugins, letting mod authors provide richer attribution than the manifest description alone.
 creditor.license = Creditor is licensed under GPLv3.0.
