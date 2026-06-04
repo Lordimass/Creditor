@@ -3,14 +3,13 @@ package com.creditor.ui;
 import com.creditor.Main;
 import com.creditor.asset.CreditAsset;
 import com.creditor.asset.CreditDisplayDetails;
-import com.hypixel.hytale.assetstore.AssetPack;
-import com.hypixel.hytale.builtin.hytalegenerator.assets.AssetManager;
 import com.hypixel.hytale.common.plugin.PluginIdentifier;
 import com.hypixel.hytale.common.plugin.PluginManifest;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.protocol.packets.interface_.CustomUIEventBindingType;
+import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.asset.AssetModule;
 import com.hypixel.hytale.server.core.plugin.PluginBase;
 import com.hypixel.hytale.server.core.plugin.PluginListPageManager;
@@ -25,8 +24,8 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 
+import java.awt.*;
 import java.lang.reflect.Field;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nonnull;
@@ -60,7 +59,7 @@ public class CreditsPage extends PluginListPage {
         commandBuilder.append("Pages/CreditsPage.ui");
         this.buildPluginList(commandBuilder, eventBuilder);
         if (!this.visiblePlugins.isEmpty()) {
-            this.selectPlugin(this.visiblePlugins.getFirst().identifier.toString(), commandBuilder);
+            this.selectPlugin(this.visiblePlugins.getFirst().identifier.toString(), commandBuilder, eventBuilder);
         }
         if (Main.isSupporter()) buildSupporterBadge(commandBuilder);
     }
@@ -68,21 +67,37 @@ public class CreditsPage extends PluginListPage {
     public void handleDataEvent(@Nonnull Ref<EntityStore> ref, @Nonnull Store<EntityStore> store, @Nonnull PluginListPage.PluginListPageEventData data) {
         assert this.playerSessionSettings != null;
         UICommandBuilder commandBuilder = new UICommandBuilder();
-
+        UIEventBuilder eventBuilder = new UIEventBuilder();
         // Fields are private in base PluginListPage Hytale class, use reflection to access them here.
         String plugin;
+        String url;
         try {
             Field dataPlugin = PluginListPageEventData.class.getDeclaredField("plugin");
             dataPlugin.setAccessible(true);
             plugin = (String) dataPlugin.get(data);
+            Field dataOption = PluginListPageEventData.class.getDeclaredField("option");
+            dataOption.setAccessible(true);
+            url = (String) dataOption.get(data);
         } catch (NoSuchFieldException | IllegalAccessException e) {
             LOGGER.atSevere().log("Could not access field when handling CreditsPage data event:", e);
             return;
         }
 
         if (plugin != null) {
-            this.selectPlugin(plugin, commandBuilder);
-            this.sendUpdate(commandBuilder, null, false);
+            this.selectPlugin(plugin, commandBuilder, eventBuilder);
+            this.sendUpdate(commandBuilder, eventBuilder, false);
+        }
+        if (url != null) {
+            if (url.isEmpty()) {
+                close();
+                return;
+            } else {
+                playerRef.sendMessage(
+                    Message.raw("Click to open: ")
+                        .insert(Message.raw(url).color(Color.CYAN).bold(true).link(url))
+                );
+            }
+            close();
         }
     }
 
@@ -111,8 +126,10 @@ public class CreditsPage extends PluginListPage {
             PluginDetails pluginDetails = this.availablePlugins.get(i);
             PluginIdentifier identifier = pluginDetails.identifier;
             String id = identifier.toString();
-            PluginBase loadedPlugin = module.getPlugin(identifier);
-            if (loadedPlugin != null && loadedPlugin.isDisabled()) continue;
+
+            PluginManager modulex = PluginManager.get();
+            PluginBase activePlugin = modulex.getPlugin(identifier);
+            if (activePlugin == null || activePlugin.isDisabled() || activePlugin.getState().isInactive()) continue;
 
             visiblePlugins.add(pluginDetails);
             String selector = "#PluginList[" + count + "]";
@@ -125,7 +142,7 @@ public class CreditsPage extends PluginListPage {
         }
     }
 
-    private void selectPlugin(@Nonnull String playerSelectedPlugin, @Nonnull UICommandBuilder commandBuilder) {
+    private void selectPlugin(@Nonnull String playerSelectedPlugin, @Nonnull UICommandBuilder commandBuilder, @Nonnull UIEventBuilder eventBuilder) {
         CreditsPage.PluginDetails nextSelectedPlugin = null;
 
         for (PluginDetails plugin : this.visiblePlugins) {
@@ -147,18 +164,26 @@ public class CreditsPage extends PluginListPage {
 
             commandBuilder.set("#PluginName.Text", nextSelectedPlugin.manifest.getName());
 
-            commandBuilder.set("#PluginVersion.Text", details.versionAndUrl());
+            commandBuilder.set("#PluginVersion.ActionName", details.versionAndUrl());
+            if (!details.website().isEmpty()) {
+                eventBuilder.addEventBinding(
+                    CustomUIEventBindingType.Activating,
+                    "#PluginVersion",
+                    new EventData().append("Option", details.website()));
+            } else {
+                eventBuilder.addEventBinding(CustomUIEventBindingType.Activating, "#PluginVersion", new EventData().append("Option", ""));
+            }
             commandBuilder.set("#PluginDescription.Text", details.descriptionText());
             String licenseText = details.licenseText();
             commandBuilder.set("#PluginLicense.Visible", !licenseText.isEmpty());
             commandBuilder.set("#PluginLicense.Text", licenseText);
-            buildAuthorTable(commandBuilder, nextSelectedPlugin);
+            buildAuthorTable(commandBuilder, nextSelectedPlugin, eventBuilder);
 
             this.selectedPlugin = nextSelectedPlugin;
         }
     }
 
-    private void buildAuthorTable(@Nonnull UICommandBuilder commandBuilder, PluginDetails nextSelectedPlugin) {
+    private void buildAuthorTable(@Nonnull UICommandBuilder commandBuilder, PluginDetails nextSelectedPlugin, @Nonnull UIEventBuilder eventBuilder) {
         commandBuilder.clear("#Authors");
         if (!nextSelectedPlugin.manifest.getAuthors().isEmpty()) {
             commandBuilder.append("#Authors", "Pages/AuthorsTableHeader.ui");
@@ -167,17 +192,24 @@ public class CreditsPage extends PluginListPage {
         nextSelectedPlugin.manifest.getAuthors().forEach((author) -> {
             String selector = "#Authors["+i+"]";
             commandBuilder.append("#Authors", "Pages/AuthorsTableRow.ui");
-            if (author.getName() != null) {
-                commandBuilder.set(selector + " #Name.Text", author.getName());
-                commandBuilder.set(selector + " #Name.TooltipText", author.getName());
+            String name = author.getName();
+            if (name != null) {
+                commandBuilder.set(selector + " #Name.Text", name);
+                commandBuilder.set(selector + " #Name.TooltipText", name);
             }
-            if (author.getEmail() != null) {
-                commandBuilder.set(selector + " #Email.Text", author.getEmail());
-                commandBuilder.set(selector + " #Email.TooltipText", author.getEmail());
+            String email = author.getEmail();
+            if (email != null) {
+                commandBuilder.set(selector + " #Email.Text", email);
+                commandBuilder.set(selector + " #Email.TooltipText", email);
             }
-            if (author.getUrl() != null) {
-                commandBuilder.set(selector + " #Url.Text", author.getUrl());
-                commandBuilder.set(selector + " #Url.TooltipText", author.getUrl());
+            String url = author.getUrl();
+            if (url != null) {
+                commandBuilder.set(selector + " #Url.ActionName", url);
+                commandBuilder.set(selector + " #Url.TooltipText", url);
+                eventBuilder.addEventBinding(
+                    CustomUIEventBindingType.Activating,
+                    selector + " #Url", new EventData().append("Option", url)
+                );
             }
 
             i.getAndIncrement();

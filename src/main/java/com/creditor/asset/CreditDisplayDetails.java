@@ -11,6 +11,7 @@ public record CreditDisplayDetails(
     @Nonnull Message name,
     @Nonnull String versionAndUrl,
     @Nonnull Message description,
+    @Nonnull String website,
     @Nonnull Message license,
     boolean hasDescription
 ) {
@@ -44,7 +45,7 @@ public record CreditDisplayDetails(
             ? creditAsset.getLicense()
             : Message.empty();
 
-        return new CreditDisplayDetails(name, joinVersionAndUrl(version, website), description, license, hasDescription);
+        return new CreditDisplayDetails(name, joinVersionAndUrl(version, website), description, nonNullString(website), license, hasDescription);
     }
 
     @Nonnull

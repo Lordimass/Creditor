@@ -1,4 +1,3 @@
-Asset packs now display in the credits menu as well as just plugins.  
-Added tooltips on the fields of the author table so that text which is too long for the field can still be read by
-hovering over the text.  
-Added command aliases "credit", "mod", "mods", "modlist", "assetpacks".
+- Changed to MIT licence to allow the mod to be used in as many projects as possible.
+- Fixed bug where mods which are disabled in singleplayer would still show up in the credits.
+- Links are now clickable in authors table and mod url.

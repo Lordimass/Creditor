@@ -21,9 +21,9 @@ Group {
       Background: #1b263a;
       TextTooltipStyle: $C.@DefaultTextTooltipStyle;
     }
-    Label #Url {
+    ActionButton #Url {
       Anchor: (Width: 200);
-      Padding: (Full: 5);
+      Padding: (Top: 5, Bottom: 5, Left: -5);
       OutlineSize: 1.5;
       OutlineColor: #473e26;
       Background: #1b263a;

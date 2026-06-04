@@ -41,12 +41,9 @@ $C.@Container {
           Anchor: (Bottom: 3);
         }
 
-        Label #PluginVersion {
-          Style: (
-            FontSize: 15,
-            TextColor: #919191
-          );
-          Anchor: (Bottom: 12);
+        ActionButton #PluginVersion {
+          Anchor: (Bottom: 12, Left: -4);
+          Padding: (Left: -5);
         }
 
         Label #PluginDescription {
