@@ -3,6 +3,7 @@ package com.creditor.ui;
 import com.creditor.Main;
 import com.creditor.asset.CreditAsset;
 import com.creditor.asset.CreditDisplayDetails;
+import com.creditor.util.ModListUtils;
 import com.hypixel.hytale.common.plugin.PluginIdentifier;
 import com.hypixel.hytale.common.plugin.PluginManifest;
 import com.hypixel.hytale.component.Ref;
@@ -20,6 +21,8 @@ import com.hypixel.hytale.server.core.ui.builder.EventData;
 import com.hypixel.hytale.server.core.ui.builder.UICommandBuilder;
 import com.hypixel.hytale.server.core.ui.builder.UIEventBuilder;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
+import com.hypixel.hytale.server.core.universe.Universe;
+import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
@@ -129,7 +132,7 @@ public class CreditsPage extends PluginListPage {
 
             PluginManager modulex = PluginManager.get();
             PluginBase activePlugin = modulex.getPlugin(identifier);
-            if (activePlugin == null || activePlugin.isDisabled() || activePlugin.getState().isInactive()) continue;
+            if (ModListUtils.isExcluded(activePlugin)) continue;
 
             visiblePlugins.add(pluginDetails);
             String selector = "#PluginList[" + count + "]";

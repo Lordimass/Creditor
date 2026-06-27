@@ -1,3 +1,5 @@
-- Changed to MIT licence to allow the mod to be used in as many projects as possible.
-- Fixed bug where mods which are disabled in singleplayer would still show up in the credits.
-- Links are now clickable in authors table and mod url.
+- Hugely improved multiple-version handling. Now, the newest instance of Creditor across all mods which shadow it will
+be used, instead of the last mod in the load order having priority over which version of Creditor is used.
+- Ability to exclude your mod from Creditor - Some developers like to split their mods into sub-plugins which are then
+all loaded as separate plugins by Hytale. You can now choose to prefix the name of your subplugins with an underscore
+to reduce clutter in the credit list.

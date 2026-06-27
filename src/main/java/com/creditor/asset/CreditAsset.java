@@ -1,6 +1,7 @@
 package com.creditor.asset;
 
 import com.hypixel.hytale.assetstore.AssetExtraInfo;
+import com.hypixel.hytale.assetstore.AssetRegistry;
 import com.hypixel.hytale.assetstore.AssetStore;
 import com.hypixel.hytale.assetstore.codec.AssetBuilderCodec;
 import com.hypixel.hytale.assetstore.map.DefaultAssetMap;
@@ -68,7 +69,7 @@ public class CreditAsset implements JsonAssetWithMap<String, DefaultAssetMap<Str
     public CreditAsset() {}
 
     @Nonnull
-    public static HytaleAssetStore<String, CreditAsset, DefaultAssetMap<String, CreditAsset>> createAssetStore() {
+    public static AssetStore<String, CreditAsset, DefaultAssetMap<String, CreditAsset>> createAssetStore() {
         return HytaleAssetStore.builder(CreditAsset.class, new DefaultAssetMap<>())
             .setPath(ASSET_PATH)
             .setCodec(CODEC)
@@ -98,7 +99,7 @@ public class CreditAsset implements JsonAssetWithMap<String, DefaultAssetMap<Str
     @Nullable
     public static AssetStore<String, CreditAsset, DefaultAssetMap<String, CreditAsset>> getAssetStore() {
         if (assetStore == null) {
-            assetStore = com.hypixel.hytale.assetstore.AssetRegistry.getAssetStore(CreditAsset.class);
+            assetStore = AssetRegistry.getAssetStore(CreditAsset.class);
         }
         return assetStore;
     }

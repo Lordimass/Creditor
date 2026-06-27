@@ -2,9 +2,11 @@ package com.creditor;
 
 import com.creditor.asset.CreditAsset;
 import com.creditor.command.CreditsCommand;
+import com.hypixel.hytale.assetstore.AssetMap;
 import com.hypixel.hytale.assetstore.AssetPack;
 import com.hypixel.hytale.assetstore.AssetRegistry;
 import com.hypixel.hytale.assetstore.AssetStore;
+import com.hypixel.hytale.assetstore.map.JsonAssetWithMap;
 import com.hypixel.hytale.common.plugin.PluginManifest;
 import com.hypixel.hytale.common.semver.Semver;
 import com.hypixel.hytale.logger.HytaleLogger;
@@ -14,10 +16,12 @@ import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.universe.world.events.AllWorldsLoadedEvent;
 import org.jspecify.annotations.Nullable;
 
+import java.lang.reflect.Field;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 public class Creditor {
@@ -39,10 +43,8 @@ public class Creditor {
         Creditor.host = host;
         if (!isGreatestVersion(host)) return;
 
-        AssetStore<?, ?, ?> creditAssetStore = AssetRegistry.getAssetStore(CreditAsset.class);
-        if (creditAssetStore != null) AssetRegistry.unregister(AssetRegistry.getAssetStore(CreditAsset.class));
+        // Check handleAllWorldsLoaded event when adding extra registrations here
         host.getAssetRegistry().register(CreditAsset.createAssetStore());
-
         host.getCommandRegistry().registerCommand(new CreditsCommand());
         host.getEventRegistry().registerGlobal(AssetPackRegisterEvent.class, Creditor::handleAssetPackRegisterEvent);
         host.getEventRegistry().registerGlobal(AllWorldsLoadedEvent.class, Creditor::handleAllWorldsLoadedEvent);
@@ -78,7 +80,24 @@ public class Creditor {
         ) {
             // We're the greatest version and the reset hasn't yet been done by another equivalent versioned Creditor instance.
             System.setProperty("CREDITOR_HANDLED_ALL_WORLDS_LOADED", "true");
-            setup(host);
+
+            // Force the asset map to use the class from this Creditor-instance by changing the key to point to our version of the class.
+            AssetStore<?, ?, ?> creditAssetStore = AssetRegistry.getAssetStore(CreditAsset.class);
+            if (creditAssetStore != null) {
+                Map<Class<? extends JsonAssetWithMap<?,?>>, AssetStore<?, ?, ?>> assetMap = null;
+                try {
+                    Field assetMapField = AssetRegistry.class.getDeclaredField("storeMap");
+                    assetMapField.setAccessible(true);
+                    assetMap = (Map<Class<? extends JsonAssetWithMap<?,?>>, AssetStore<?, ?, ?>>) assetMapField.get(AssetMap.class);
+                } catch (NoSuchFieldException | IllegalAccessException error) {
+                    LOGGER.atSevere().withCause(error).log("Failed to update assetMap for Creditor. You may experience version mismatch problems.");
+                }
+                if (assetMap != null) {
+                    assetMap.put(CreditAsset.class, CreditAsset.getAssetStore());
+                }
+            }
+
+            host.getCommandRegistry().registerCommand(new CreditsCommand());
         }
     }
 
