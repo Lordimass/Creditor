@@ -9,9 +9,9 @@ import javax.annotation.Nullable;
 
 public record CreditDisplayDetails(
     @Nonnull Message name,
-    @Nonnull String versionAndUrl,
-    @Nonnull Message description,
+    @Nonnull String version,
     @Nonnull String website,
+    @Nonnull Message description,
     @Nonnull Message license,
     boolean hasDescription
 ) {
@@ -45,7 +45,7 @@ public record CreditDisplayDetails(
             ? creditAsset.getLicense()
             : Message.empty();
 
-        return new CreditDisplayDetails(name, joinVersionAndUrl(version, website), description, nonNullString(website), license, hasDescription);
+        return new CreditDisplayDetails(name, version, nonNullString(website), description, license, hasDescription);
     }
 
     @Nonnull
@@ -59,9 +59,9 @@ public record CreditDisplayDetails(
     }
 
     @Nonnull
-    private static String joinVersionAndUrl(@Nullable String version, @Nullable String website) {
-        boolean hasVersion = version != null && !version.isEmpty();
-        boolean hasWebsite = website != null && !website.isEmpty();
+    public String joinVersionAndWebsite() {
+        boolean hasVersion = !version.isEmpty();
+        boolean hasWebsite = !website.isEmpty();
         if (hasVersion && hasWebsite) {
             return version + " • " + website;
         }

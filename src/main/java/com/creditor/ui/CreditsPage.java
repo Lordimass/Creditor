@@ -44,6 +44,8 @@ public class CreditsPage extends PluginListPage {
     @Nonnull
     private final ObjectList<CreditsPage.PluginDetails> availablePlugins = new ObjectArrayList<>();
     @Nonnull
+    private final ObjectList<CreditsPage.PluginDetails> assetPacks = new ObjectArrayList<>();
+    @Nonnull
     private final ObjectList<CreditsPage.PluginDetails> visiblePlugins = new ObjectArrayList<>();
     @Nullable
     private PluginListPageManager.SessionSettings playerSessionSettings;
@@ -64,7 +66,8 @@ public class CreditsPage extends PluginListPage {
         if (!this.visiblePlugins.isEmpty()) {
             this.selectPlugin(this.visiblePlugins.getFirst().identifier.toString(), commandBuilder, eventBuilder);
         }
-        if (Main.isSupporter()) buildSupporterBadge(commandBuilder);
+
+        if ("true".equals(System.getProperty("CREDITOR_SUPPORTER"))) buildSupporterBadge(commandBuilder);
     }
 
     public void handleDataEvent(@Nonnull Ref<EntityStore> ref, @Nonnull Store<EntityStore> store, @Nonnull PluginListPage.PluginListPageEventData data) {
@@ -117,10 +120,13 @@ public class CreditsPage extends PluginListPage {
             if (manifest.getGroup().equals("Hytale")) return;
             this.availablePlugins.add(new CreditsPage.PluginDetails(manifest, id));
         });
+        // Check for AssetPacks too
         AssetModule.get().getAssetPacks().forEach(assetPack -> {
             PluginIdentifier identifier = new PluginIdentifier(assetPack.getManifest());
             if (assetPack.isCoreMod() || loadedPlugins.containsKey(identifier)) return;
-            this.availablePlugins.add(new CreditsPage.PluginDetails(assetPack.getManifest(), identifier));
+            CreditsPage.PluginDetails pluginDetails = new CreditsPage.PluginDetails(assetPack.getManifest(), identifier);
+            this.availablePlugins.add(pluginDetails);
+            this.assetPacks.add(pluginDetails);
         });
 
         int i = 0;
@@ -132,7 +138,11 @@ public class CreditsPage extends PluginListPage {
 
             PluginManager modulex = PluginManager.get();
             PluginBase activePlugin = modulex.getPlugin(identifier);
-            if (ModListUtils.isExcluded(activePlugin)) continue;
+            if (ModListUtils.isExcluded(activePlugin, pluginDetails.manifest, this.assetPacks.contains(pluginDetails))) continue;
+
+            CreditDisplayDetails details = CreditDisplayDetails.from(
+                pluginDetails.manifest, CreditAsset.findByPlugin(pluginDetails.identifier.toString())
+            );
 
             visiblePlugins.add(pluginDetails);
             String selector = "#PluginList[" + count + "]";
@@ -141,6 +151,15 @@ public class CreditsPage extends PluginListPage {
             eventBuilder.addEventBinding(
                 CustomUIEventBindingType.Activating, selector + " #Button", new EventData().append("Plugin", id).append("Type", "Select"), false
             );
+
+            // Tags
+            if (!details.version().isEmpty()) {
+                commandBuilder.set(selector + " #Tags #VersionTag.Text", details.version());
+            } else {
+                commandBuilder.set(selector + " #Tags #VersionTag.Visible", false);
+            }
+            commandBuilder.set(selector + " #Tags #AssetPackTag.Visible",
+                assetPacks.contains(pluginDetails));
             count++;
         }
     }
@@ -167,7 +186,7 @@ public class CreditsPage extends PluginListPage {
 
             commandBuilder.set("#PluginName.Text", nextSelectedPlugin.manifest.getName());
 
-            commandBuilder.set("#PluginVersion.ActionName", details.versionAndUrl());
+            commandBuilder.set("#PluginVersion.ActionName", details.joinVersionAndWebsite());
             if (!details.website().isEmpty()) {
                 eventBuilder.addEventBinding(
                     CustomUIEventBindingType.Activating,

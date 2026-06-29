@@ -5,16 +5,13 @@ import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
 import lombok.Getter;
 
 public class Main extends JavaPlugin {
-    @Getter
-    private static boolean supporter = false;
-
     public Main(JavaPluginInit init) {
         super(init);
     }
 
     @Override
     protected void start() {
-        supporter = true;
+        System.setProperty("CREDITOR_SUPPORTER", "true");
         Creditor.start(this);
     }
 

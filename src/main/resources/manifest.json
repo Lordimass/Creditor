@@ -13,7 +13,7 @@
             "Name": "Blovien"
         }
     ],
-    "Website": "https://github.com/Lordimass/Creditor",
+    "Website": "https://www.curseforge.com/hytale/mods/creditor",
     "ServerVersion": ">=0.5.3 <0.6.0",
     "Dependencies": {
         "Hytale:AssetModule": "*"
@@ -23,7 +23,7 @@
     },
     "DisabledByDefault": false,
     "Main": "com.creditor.Main",
-    "IncludesAssetPack": false,
+    "IncludesAssetPack": true,
     "UpdateChecker": {
         "CurseForge": ""
     }

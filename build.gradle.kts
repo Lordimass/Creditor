@@ -46,6 +46,26 @@ hytaleTools {
     patchline = property("patchline").toString()
 }
 
+val generateBuildInfo by tasks.registering(Copy::class) {
+    description = "Generate a class with a version constant to allow accessing it at runtime (manifest.json is not available when shadowed)"
+    from("src/main/templates")
+    into(layout.buildDirectory.dir("generated/sources/buildInfo"))
+
+    expand(
+        mapOf(
+            "version" to project.version
+        )
+    )
+}
+
+sourceSets.main {
+    java.srcDir(layout.buildDirectory.dir("generated/sources/buildInfo"))
+}
+
+tasks.compileJava {
+    dependsOn(generateBuildInfo)
+}
+
 repositories {
     mavenCentral()
 }
@@ -54,6 +74,9 @@ idea {
     module {
         isDownloadSources = true
         isDownloadJavadoc = true
+        generatedSourceDirs.add(
+            layout.buildDirectory.dir("generated/sources/buildInfo").get().asFile
+        )
     }
 }
 

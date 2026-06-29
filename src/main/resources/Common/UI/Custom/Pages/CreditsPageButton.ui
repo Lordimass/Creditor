@@ -20,14 +20,42 @@ $C = "../Common.ui";
   )
 );
 
+@TagStyle = (
+    RenderBold: true,
+    FontSize: 10,
+    VerticalAlignment: Center
+);
+
 Group {
   Anchor: (Width: 340);
   LayoutMode: Left;
 
   TextButton #Button {
     Padding: (Full: 3);
-    Anchor: (Bottom: 2);
+    Anchor: (Bottom: 2, Width: 340, Left: 0);
     Style: @LabelStyle;
     FlexWeight: 1;
+  }
+
+  Group #Tags {
+    Anchor: (Right: 2, Top: 0);
+    LayoutMode: Right;
+
+    Label #VersionTag {
+      Text: "v1.0.0";
+      Padding: (Left: 2, Right: 2);
+      Anchor: (Top: 4, Bottom: 8);
+      Background: #2c8ad9(0.3);
+      Style: @TagStyle;
+    }
+
+    Label #AssetPackTag {
+      Text: "Asset Pack";
+      Visible: false;
+      Padding: (Left: 2, Right: 2);
+      Anchor: (Top: 4, Bottom: 8);
+      Background: #42f5a1(0.3);
+      Style: @TagStyle;
+    }
   }
 }
