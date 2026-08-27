@@ -86,4 +86,9 @@ hytalePublisher {
         enabled = true
         projectId = property("curseforge_project_id").toString()
     }
+
+    modifold {
+        enabled = true
+        projectId = property("modifold_project_id").toString()
+    }
 }

@@ -1,7 +1,7 @@
 {
     "Group": "com.creditor",
     "Name": "Creditor",
-    "Version": "1.1.0",
+    "Version": "1.1.1",
     "Description": "A Hytale Plugin and Java Library to credit mod creators and provide information on the mods which are installed.",
     "Authors": [
         {
@@ -14,7 +14,8 @@
         }
     ],
     "Website": "https://www.curseforge.com/hytale/mods/creditor",
-    "ServerVersion": ">=0.5.3 <0.6.0",
+    "Main": "com.creditor.Main",
+    "ServerVersion": ">=0.6.0 <0.7.0",
     "Dependencies": {
         "Hytale:AssetModule": "*"
     },
@@ -22,7 +23,6 @@
         
     },
     "DisabledByDefault": false,
-    "Main": "com.creditor.Main",
     "IncludesAssetPack": true,
     "UpdateChecker": {
         "CurseForge": ""

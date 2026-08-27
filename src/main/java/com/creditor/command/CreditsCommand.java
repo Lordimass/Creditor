@@ -18,6 +18,8 @@ public class CreditsCommand extends AbstractPlayerCommand {
     public CreditsCommand() {
         super("credits", "View full modlist and credits for modders.");
         addAliases("credit", "mod", "mods", "modlist", "assetpacks");
+
+        requireNoPermission();
     }
 
     @Override
@@ -36,10 +38,5 @@ public class CreditsCommand extends AbstractPlayerCommand {
 
         CreditsPage page = new CreditsPage(playerRef);
         pageManager.openCustomPage(ref, store, page);
-    }
-
-    @Override
-    protected boolean canGeneratePermission() {
-        return false;
     }
 }
