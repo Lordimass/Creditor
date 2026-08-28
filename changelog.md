@@ -1,1 +1,1 @@
-Added Hytale 0.6.0 support
+Corrected licence details from GPL-3.0 to MIT

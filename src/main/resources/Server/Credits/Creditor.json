@@ -6,6 +6,6 @@
   },
   "License": {
     "MessageId": "creditor.creditor.license",
-    "RawText": "Creditor is licensed under GPLv3.0."
+    "RawText": "Creditor is licensed under MIT."
   }
 }

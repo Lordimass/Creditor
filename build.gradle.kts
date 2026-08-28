@@ -2,7 +2,7 @@ plugins {
     idea
     java
     id("com.azuredoom.hytale-tools") version "1.+"
-    id("com.azuredoom.hytalepublisher") version "1.+"
+    id("com.azuredoom.hytalepublisher") version "1.1.12"
 }
 
 
@@ -79,7 +79,6 @@ idea {
         )
     }
 }
-
 
 hytalePublisher {
     curseforge {
